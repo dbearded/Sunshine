@@ -1,14 +1,13 @@
 package com.android.derekbearded.Sunshine;
 
-import com.squareup.moshi.JsonAdapter;
-import com.squareup.moshi.JsonReader;
-import com.squareup.moshi.Moshi;
-
 import java.io.IOException;
+import java.util.List;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
+import retrofit2.Call;
+import retrofit2.Retrofit;
+import retrofit2.converter.moshi.MoshiConverterFactory;
+import retrofit2.http.GET;
+import retrofit2.http.Path;
 
 /**
  * Created by Sputnik on 3/9/2018.
@@ -16,43 +15,36 @@ import okhttp3.Response;
 
 public class Util {
 
-    public static final String WEATHER_FORMAT = ".json";
-    public static final String BASE_URL = "http://api.wunderground.com/api/";
-    public static final String PATH_URL = "/astronomy/forecast10day/q/";
+    public static final String BASE_URL = "http://api.wunderground.com/";
 
-    public static final OkHttpClient httpClient = new OkHttpClient();
+    private static Retrofit retrofit;
 
-    public static String getWeatherUrl(int zipCode, String apiKey) {
-        return String.format("%s%s%s", BASE_URL + apiKey + PATH_URL, zipCode, WEATHER_FORMAT);
-    }
-
-    public static <T> T loadData(String url, Class<T> cls) {
-        T t = null;
-        Moshi moshi = new Moshi.Builder().build();
-
-        JsonReader reader = JsonReader.of(makeHttpRequest(url));
-        try {
-            JsonAdapter<T> adapter = moshi.adapter(cls);
-            t = adapter.fromJson(reader);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return t;
-    }
-
-    public static okio.BufferedSource makeHttpRequest(String url){
-        Request request = new Request.Builder()
-                .url(url)
+    private static void initRetrofit(){
+        retrofit = new Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .addConverterFactory(MoshiConverterFactory.create())
                 .build();
+    }
+
+    public interface WeatherSerivce {
+        @GET("api/{key}/astronomy/forecast10day/q/{zipCode}.json")
+        Call<WeatherForecast> weatherForecast(@Path("key") String key, @Path("zipCode") int zipCode);
+    }
+
+    public static List<ForecastDay> loadWeather(String key, int zipCode) {
+        if (retrofit == null){
+            initRetrofit();
+        }
+        WeatherSerivce service = retrofit.create(WeatherSerivce.class);
+        Call<WeatherForecast> call = service.weatherForecast(key, zipCode);
+
+        List<ForecastDay> days = null;
         try {
-            Response response = httpClient.newCall(request).execute();
-            if (!response.isSuccessful()){
-                throw new IOException("Response code: " + response.code() +" Response not successful at: " + url);
-            }
-            return response.body().source();
+            WeatherForecast forecast = call.execute().body();
+            days = forecast.forecast.simpleforecast.forecastday;
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        return days;
     }
 }

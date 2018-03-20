@@ -2,6 +2,7 @@ package com.android.derekbearded.Sunshine;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.transition.TransitionManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +12,10 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
+
+import butterknife.BindView;
+import butterknife.BindViews;
+import butterknife.ButterKnife;
 
 /**
  * Created by Sputnik on 3/9/2018.
@@ -81,20 +86,18 @@ class MyViewAdapter extends RecyclerView.Adapter<MyViewAdapter.MyViewHolder>{
 
     static class MyViewHolder extends RecyclerView.ViewHolder{
 
-        ImageView icon;
-        TextView high, low, condition, date, wind, humidity;
-        ViewGroup detailView;
+        @BindView(R.id.icon) ImageView icon;
+        @BindView(R.id.tvHigh) TextView high;
+        @BindView(R.id.tvLow) TextView low;
+        @BindView(R.id.tvConditions) TextView condition;
+        @BindView(R.id.tvDate) TextView date;
+        @BindView(R.id.tvWindVal) TextView wind;
+        @BindView(R.id.tvHumidityVal) TextView humidity;
+        @BindView(R.id.detailView) ViewGroup detailView;
 
         public MyViewHolder(View itemView) {
             super(itemView);
-            icon = itemView.findViewById(R.id.icon);
-            high = itemView.findViewById(R.id.tvHigh);
-            low = itemView.findViewById(R.id.tvLow);
-            condition = itemView.findViewById(R.id.tvConditions);
-            date = itemView.findViewById(R.id.tvDate);
-            wind = itemView.findViewById(R.id.tvWindVal);
-            humidity = itemView.findViewById(R.id.tvHumidityVal);
-            detailView = itemView.findViewById(R.id.detailView);
+            ButterKnife.bind(this, itemView);
         }
     }
 }

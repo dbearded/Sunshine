@@ -13,20 +13,24 @@ import android.view.View;
 
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final int WEATHER_ID = 1;
 
-    private ContentLoadingProgressBar progressBar;
-    private RecyclerView recyclerView;
+    @BindView(R.id.progressBar) ContentLoadingProgressBar progressBar;
+    @BindView(R.id.recyclerView) RecyclerView recyclerView;
     private MyViewAdapter adapter;
     private LinearLayoutManager layoutManager;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
+
         LoaderManager loaderManager = getSupportLoaderManager();
         loaderManager.initLoader(WEATHER_ID, null, new LoaderManager.LoaderCallbacks<List<ForecastDay>>() {
             @NonNull
@@ -35,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
                 if (id != WEATHER_ID){
                     return null;
                 }
-                return new ForecastLoader(MainActivity.this, Util.getWeatherUrl(21742, getString(R.string.api_key)));
+                return new ForecastLoader(MainActivity.this, getString(R.string.api_key), 21742);
             }
 
             @Override
@@ -53,9 +57,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }).forceLoad();
 
-        progressBar = findViewById(R.id.progressBar);
-
-        recyclerView = findViewById(R.id.recyclerView);
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         adapter = new MyViewAdapter(recyclerView);

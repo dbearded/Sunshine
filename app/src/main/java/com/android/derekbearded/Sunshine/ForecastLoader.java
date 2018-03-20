@@ -12,16 +12,17 @@ import java.util.List;
  */
 
 public class ForecastLoader extends AsyncTaskLoader<List<ForecastDay>> {
-    private String url;
-    public ForecastLoader(@NonNull Context context, String url) {
+    private String apiKey;
+    private int zipCode;
+    public ForecastLoader(@NonNull Context context, String apiKey, int zipCode) {
         super(context);
-        this.url = url;
+        this.apiKey = apiKey;
+        this.zipCode = zipCode;
     }
 
     @Nullable
     @Override
     public List<ForecastDay> loadInBackground() {
-        WeatherForecast forecast = Util.loadData(url, WeatherForecast.class);
-        return forecast.forecast.simpleforecast.forecastday;
+        return Util.loadWeather(apiKey, zipCode);
     }
 }
